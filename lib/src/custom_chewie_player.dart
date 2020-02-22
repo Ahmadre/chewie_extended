@@ -15,6 +15,10 @@ class Chewie extends StatefulWidget {
   /// The Controller for the Video you want to play
   final VideoPlayerController controller;
 
+  final Function beforeFullScreen;
+
+  final Function afterFullScreen;
+
   /// Initialize the Video on Startup. This will prep the video for playback.
   final bool autoInitialize;
 
@@ -51,6 +55,8 @@ class Chewie extends StatefulWidget {
   Chewie(
     this.controller, {
     Key key,
+    this.beforeFullScreen,
+    this.afterFullScreen,
     this.aspectRatio,
     this.autoInitialize = false,
     this.autoPlay = false,
@@ -227,7 +233,11 @@ class _ChewiePlayerState extends State<Chewie> {
       ]);
     }
 
+    widget.beforeFullScreen();
+
     await Navigator.of(context).push(route);
+
+    widget.afterFullScreen();
 
     SystemChrome.setEnabledSystemUIOverlays(SystemUiOverlay.values);
     SystemChrome.setPreferredOrientations([
