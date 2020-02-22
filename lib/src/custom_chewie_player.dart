@@ -15,8 +15,10 @@ class Chewie extends StatefulWidget {
   /// The Controller for the Video you want to play
   final VideoPlayerController controller;
 
+  /// Function to execute before going into FullScreen
   final Function beforeFullScreen;
 
+  /// Function to execute after exiting FullScreen
   final Function afterFullScreen;
 
   /// Initialize the Video on Startup. This will prep the video for playback.
