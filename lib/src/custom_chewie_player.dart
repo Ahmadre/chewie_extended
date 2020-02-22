@@ -119,7 +119,7 @@ class _ChewiePlayerState extends State<Chewie> {
         playerHeight = null;
         wasLandscape = false;
       });
-      new Future<dynamic>.value(Navigator.of(context).pop());
+      Navigator.of(context).pop();
     }
     return new Container(
       height: playerHeight,
@@ -154,7 +154,7 @@ class _ChewiePlayerState extends State<Chewie> {
         child: new PlayerWithControls(
           controller: _controller,
           onExpandCollapse: () {
-            new Future<dynamic>.value(Navigator.of(context).pop());
+            Navigator.of(context).pop();
             leaveFullscreen = true;
           },
           aspectRatio: widget.aspectRatio ?? _calculateAspectRatio(context),
