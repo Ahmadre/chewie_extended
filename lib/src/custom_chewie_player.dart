@@ -208,6 +208,8 @@ class _ChewiePlayerState extends State<Chewie> {
 
   @override
   dispose() {
+    _controller?.pause();
+    _controller?.dispose();
     super.dispose();
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.landscapeRight,
