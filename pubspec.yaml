@@ -10,7 +10,8 @@ environment:
 dependencies:
   open_iconic_flutter: ">=0.3.0 <0.4.0"
   cached_network_image: ^2.0.0
-  flutter_android_pip: ^0.0.2
+  flutter_android_pip: 
+    git: git://github.com/Ahmadre/flutter_android_pip.git
   video_player: ">=0.7.0 <1.0.0"
   flutter:
     sdk: flutter
