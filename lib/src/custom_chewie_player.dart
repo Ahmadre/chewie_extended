@@ -15,6 +15,9 @@ class Chewie extends StatefulWidget {
   /// The Controller for the Video you want to play
   final VideoPlayerController controller;
 
+  /// Dispose the actual VideoPlayerController on dispose()
+  final bool disposeControllerManually;
+
   /// Function to execute before going into FullScreen
   final Function beforeFullScreen;
 
@@ -57,6 +60,7 @@ class Chewie extends StatefulWidget {
   Chewie(
     this.controller, {
     Key key,
+    this.disposeControllerManually = false,
     this.beforeFullScreen,
     this.afterFullScreen,
     this.aspectRatio,
@@ -208,8 +212,10 @@ class _ChewiePlayerState extends State<Chewie> {
 
   @override
   dispose() {
-    _controller?.pause();
-    _controller?.dispose();
+    if (widget.disposeControllerManually) {
+      _controller?.pause();
+      _controller?.dispose();
+    }
     super.dispose();
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.landscapeRight,
