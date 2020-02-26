@@ -30,7 +30,8 @@ class MaterialControls extends StatefulWidget {
   }
 }
 
-class _MaterialControlsState extends State<MaterialControls> {
+class _MaterialControlsState extends State<MaterialControls>
+    with SingleTickerProviderStateMixin {
   VideoPlayerValue _latestValue;
   double _latestVolume;
   bool _hideStuff = true;
@@ -41,6 +42,8 @@ class _MaterialControlsState extends State<MaterialControls> {
 
   final barHeight = 48.0;
   final marginSize = 5.0;
+
+  AnimationController controller;
 
   @override
   Widget build(BuildContext context) {
@@ -68,18 +71,20 @@ class _MaterialControlsState extends State<MaterialControls> {
         ],
       ),
       _hideStuff
-          ? new Container()
-          : new IconButton(
-              icon: new Icon(
-                Icons.arrow_back,
-                color: Colors.white,
-              ),
-              onPressed: () async {
-                print("pressed true");
-                widget.controller.pause();
-                Navigator.pop(context);
-              },
-            ),
+          ? Container()
+          : widget.fullScreen
+              ? new IconButton(
+                  icon: new Icon(
+                    Icons.arrow_back,
+                    color: Colors.white,
+                  ),
+                  onPressed: () async {
+                    print("pressed true");
+                    widget.controller.pause();
+                    Navigator.pop(context);
+                  },
+                )
+              : Container()
     ]);
   }
 
@@ -101,6 +106,12 @@ class _MaterialControlsState extends State<MaterialControls> {
     _initialize();
 
     super.initState();
+
+    controller = AnimationController(
+      vsync: this,
+      duration: Duration(milliseconds: 400),
+      reverseDuration: Duration(milliseconds: 400),
+    );
   }
 
   @override
@@ -164,51 +175,46 @@ class _MaterialControlsState extends State<MaterialControls> {
 
   Expanded _buildHitArea() {
     return new Expanded(
-      child: new GestureDetector(
-        onTap: _latestValue != null && _latestValue.isPlaying
-            ? () {
-                _playPause();
-                //_cancelAndRestartTimer;
-                setState(() {
-                  _hideStuff = false;
-                });
-              }
-            : () {
-                _playPause();
-                setState(() {
-                  _hideStuff = true;
-                });
-              },
-        child: new Container(
-          color: Colors.transparent,
-          child: new Center(
-            child: new AnimatedOpacity(
-              opacity:
-                  _latestValue != null && !_latestValue.isPlaying && !_dragging
-                      ? 1.0
-                      : 0.0,
-              duration: new Duration(milliseconds: 300),
-              child: new GestureDetector(
-                child: new Container(
-                  decoration: new BoxDecoration(
-                    color: Colors.transparent,
-                    borderRadius: new BorderRadius.circular(48.0),
-                  ),
-                  child: new Padding(
-                    padding: new EdgeInsets.only(top: 30.0),
-                    child: new Icon(
-                      Icons.play_arrow,
-                      size: 50.0,
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
+        child: GestureDetector(
+      onTap: () {
+        setState(() {
+          _hideStuff = !_hideStuff;
+        });
+      },
+      child: new Container(
+        color: Colors.transparent,
+        child: new Center(
+          child: new AnimatedOpacity(
+            opacity: (_latestValue != null &&
+                    !_latestValue.isPlaying &&
+                    !_dragging) ||
+                    !_hideStuff
+                ? 1.0
+                : 0.0,
+            duration: new Duration(milliseconds: 300),
+            child: new Container(
+              decoration: new BoxDecoration(
+                color: Colors.transparent,
+                borderRadius: new BorderRadius.circular(48.0),
               ),
+              child: new Padding(
+                  padding: new EdgeInsets.only(top: 30.0),
+                  child: IconButton(
+                      icon: AnimatedIcon(
+                        icon: AnimatedIcons.play_pause,
+                        progress: controller,
+                        semanticLabel: 'Play/Pause',
+                        size: 50.0,
+                        color: Colors.white,
+                      ),
+                      onPressed: () {
+                        _playPause();
+                      })),
             ),
           ),
         ),
       ),
-    );
+    ));
   }
 
   GestureDetector _buildMuteButton(
@@ -356,6 +362,7 @@ class _MaterialControlsState extends State<MaterialControls> {
   void _playPause() {
     setState(() {
       if (widget.controller.value.isPlaying) {
+        controller.reverse();
         _hideStuff = false;
         _hideTimer?.cancel();
         widget.controller.pause();
@@ -364,9 +371,13 @@ class _MaterialControlsState extends State<MaterialControls> {
 
         if (!widget.controller.value.initialized) {
           widget.controller.initialize().then((_) {
+            controller.forward();
+            _hideStuff = true;
             widget.controller.play();
           });
         } else {
+          controller.forward();
+          _hideStuff = true;
           widget.controller.play();
         }
       }
