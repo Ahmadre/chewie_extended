@@ -13,10 +13,7 @@ import 'package:video_player/video_player.dart';
 /// make it easy to use!
 class Chewie extends StatefulWidget {
   /// The Controller for the Video you want to play
-  final VideoPlayerController controller;
-
-  /// Dispose the actual VideoPlayerController on dispose()
-  final bool disposeControllerManually;
+  VideoPlayerController controller;
 
   /// Function to execute before going into FullScreen
   final Function beforeFullScreen;
@@ -60,7 +57,6 @@ class Chewie extends StatefulWidget {
   Chewie(
     this.controller, {
     Key key,
-    this.disposeControllerManually = false,
     this.beforeFullScreen,
     this.afterFullScreen,
     this.aspectRatio,
@@ -83,7 +79,6 @@ class Chewie extends StatefulWidget {
 }
 
 class _ChewiePlayerState extends State<Chewie> {
-  VideoPlayerController _controller;
   // Whether it was on landscape before to not trigger it twice
   bool wasLandscape = false;
   double playerHeight;
@@ -128,7 +123,7 @@ class _ChewiePlayerState extends State<Chewie> {
     return new Container(
       height: playerHeight,
       child: new PlayerWithControls(
-        controller: _controller,
+        controller: widget.controller,
         onExpandCollapse: () => _pushFullScreenWidget(context),
         aspectRatio: widget.aspectRatio ?? _calculateAspectRatio(context),
         cupertinoProgressColors: widget.cupertinoProgressColors,
@@ -143,7 +138,6 @@ class _ChewiePlayerState extends State<Chewie> {
   @override
   void initState() {
     super.initState();
-    _controller = widget.controller;
     _initialize();
   }
 
@@ -156,7 +150,7 @@ class _ChewiePlayerState extends State<Chewie> {
         alignment: Alignment.center,
         color: Colors.black,
         child: new PlayerWithControls(
-          controller: _controller,
+          controller: widget.controller,
           onExpandCollapse: () {
             Navigator.of(context).pop();
             leaveFullscreen = true;
@@ -184,18 +178,18 @@ class _ChewiePlayerState extends State<Chewie> {
   }
 
   Future _initialize() async {
-    await _controller.setLooping(widget.looping);
+    await widget.controller.setLooping(widget.looping);
 
     if (widget.autoInitialize || widget.autoPlay) {
-      await _controller.initialize();
+      await widget.controller.initialize();
     }
 
     if (widget.autoPlay) {
-      await _controller.play();
+      await widget.controller.play();
     }
 
     if (widget.startAt != null) {
-      await _controller.seekTo(widget.startAt);
+      await widget.controller.seekTo(widget.startAt);
     }
   }
 
@@ -203,19 +197,16 @@ class _ChewiePlayerState extends State<Chewie> {
   void didUpdateWidget(Chewie oldWidget) {
     super.didUpdateWidget(oldWidget);
 
-    if (widget.controller.dataSource != _controller.dataSource) {
-      _controller.dispose();
-      _controller = widget.controller;
+    if (widget.controller.dataSource != widget.controller.dataSource) {
+      widget.controller.dispose();
+      widget.controller = widget.controller;
       _initialize();
     }
   }
 
   @override
   dispose() {
-    if (widget.disposeControllerManually) {
-      _controller?.pause();
-      _controller?.dispose();
-    }
+    if (widget.controller?.value.initialized) widget.controller?.pause();
     super.dispose();
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.landscapeRight,
