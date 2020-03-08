@@ -7,8 +7,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
 
-import 'package:flutter_android_pip/flutter_android_pip.dart';
-
 class MaterialControls extends StatefulWidget {
   final VideoPlayerController controller;
   final bool fullScreen;
@@ -141,7 +139,6 @@ class _MaterialControlsState extends State<MaterialControls>
             _buildPosition(Colors.white),
             _buildProgressBar(),
             _buildMuteButton(controller),
-            widget.fullScreen ? _buildPipButton() : Container(),
             _buildExpandButton(),
           ],
         ),
@@ -246,37 +243,6 @@ class _MaterialControlsState extends State<MaterialControls>
                 (_latestValue != null && _latestValue.volume > 0)
                     ? Icons.volume_up
                     : Icons.volume_off,
-                color: Colors.white,
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  GestureDetector _buildPipButton() {
-    return new GestureDetector(
-      onTap: () {
-        FlutterAndroidPip.enterPictureInPictureMode;
-        _playPause();
-        setState(() {
-          _hideStuff = true;
-        });
-      },
-      child: new AnimatedOpacity(
-        opacity: _hideStuff ? 0.0 : 1.0,
-        duration: new Duration(milliseconds: 300),
-        child: new ClipRect(
-          child: new Container(
-            child: new Container(
-              height: barHeight,
-              padding: new EdgeInsets.only(
-                left: 8.0,
-                right: 8.0,
-              ),
-              child: new Icon(
-                Icons.picture_in_picture,
                 color: Colors.white,
               ),
             ),
